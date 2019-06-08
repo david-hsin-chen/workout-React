@@ -1,0 +1,12 @@
+.outerBlock{
+  width: 450px;
+  border: 1px solid black;
+  .innerBlock{
+    width: 430;
+    margin: 10px;
+    .imgDisplay{ width: 90%; margin: 10px 5%;  display: block;}
+    .typeDisplay{ font-weight: 600; font-size: 16px; display: block;}
+    .setsDisplay{ font-size: 14px; display: block;}
+    .repsDisplay{ font-size: 14px; display: block;}
+  }
+}
