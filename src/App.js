@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-
+import absData from './Data/AbsData';
+import lowerBodyData from './Data/LowerBodyData';
+import upperBodyData from './Data/UpperBodyData';
 
 function App() {
 
@@ -10,7 +12,7 @@ function App() {
     reps: 3
   })
 
-  const workoutData = [
+  const allWorkoutData = [
     {
       workoutType: 'Push-Up',
       workoutImage: 'a.jpg',
@@ -36,6 +38,24 @@ function App() {
       maxReps: 30
     }
   ]
+  
+  const [workoutData, setWorkoutData] = useState(allWorkoutData)
+
+
+const changeWorkoutType = type => {
+  switch(type){
+    case absData:
+    setWorkoutData(absData);
+    break;
+    case lowerBodyData:
+    setWorkoutData(lowerBodyData);
+    break;
+    case upperBodyData:
+    setWorkoutData(upperBodyData);
+    break;
+    default: setWorkoutData(allWorkoutData);
+  }
+}
 
   const newRandom=(max,min)=>{
     return Math.floor(Math.random()*(max-min)+min);
@@ -58,6 +78,9 @@ function App() {
 
   return (
     <div className="App">
+      <button onClick={ changeWorkoutType.bind(this, absData)}>Abs</button>
+      <button onClick={ changeWorkoutType.bind(this, lowerBodyData)}>Lower</button>
+      <button onClick={ changeWorkoutType.bind(this, upperBodyData)}>Upper</button>
       <div className="outerBlock">
         <div className="innerBlock">
           <img className="imgDisplay" alt={workoutRoutine.workoutType} src={workoutRoutine.workoutImage} />
