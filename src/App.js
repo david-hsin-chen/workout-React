@@ -1,44 +1,19 @@
 import React, { useState } from 'react';
-
+import workoutData from './data';
 
 function App() {
 
   const [workoutRoutine, setWorkoutRoutine] = useState({
     workoutType: 'PUSH UP',
-    workoutImage: 'a.jpg',
+    workoutImage: 'https://media.self.com/photos/5b6af7a156b2e2706f755857/master/w_728,c_limit/blast-off-push-ups-20-min.gif',
     sets: 1,
     reps: 3
   })
 
-  const workoutData = [
-    {
-      workoutType: 'Push-Up',
-      workoutImage: 'a.jpg',
-      minSets: 1,
-      maxSets: 10,
-      minReps: 1,
-      maxReps: 30
-    },
-    {
-      workoutType: 'Mountain Climber',
-      workoutImage: 'b.jpg',
-      minSets: 1,
-      maxSets: 10,
-      minReps: 2,
-      maxReps: 40
-    },
-    {
-      workoutType: 'Sit-Up',
-      workoutImage: 'a.jpg',
-      minSets: 1,
-      maxSets: 10,
-      minReps: 1,
-      maxReps: 30
-    }
-  ]
+
 
   const newRandom=(max,min)=>{
-    return Math.floor(Math.random()*(max-min)+min);
+    return Math.floor(Math.random()*(max-min+1)+min);
   }
 
   const triggerNewSet=()=>{
@@ -62,8 +37,8 @@ function App() {
         <div className="innerBlock">
           <img className="imgDisplay" alt={workoutRoutine.workoutType} src={workoutRoutine.workoutImage} />
           <b className="typeDisplay">{workoutRoutine.workoutType}</b>
-          <p className="setsDisplay">do <b>{workoutRoutine.sets}</b> round</p>
-          <p className="repsDisplay">at <b>{workoutRoutine.reps}</b> times</p>
+          <p className="setsDisplay">Do: <b>{workoutRoutine.sets}</b> rounds</p>
+          <p className="repsDisplay">Do: <b>{workoutRoutine.reps}</b> times/round</p>
           <button onClick={triggerNewSet}>NEW SET</button>
         </div>
       </div>
