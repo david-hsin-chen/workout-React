@@ -15,7 +15,7 @@ const upperBodyGymData = {
     maxReps: 20
   },{
     workoutType: 'Bench Press',
-    workoutImage: 'https://www.mensjournal.com/wp-content/uploads/mf/dumbbell-bench-press-chest-weights-main.jpg?w=1000',
+    workoutImage: 'https://www.mensjournal.com/wp-content/uploads/mf/dumbbell-bench-press-chest-weights-main.jpg?',
     minSets: 1,
     maxSets: 5,
     minReps: 5,
