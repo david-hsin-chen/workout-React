@@ -30,6 +30,34 @@
   }
 }
 
+.lineContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
+  div {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+.notesContainer {
+  display: block;
+  width: 100%;
+  .notesInnerContainer{
+    padding: 5px;
+    width: 100%;
+    input {
+      width: 70%;
+      height: 3rem;
+    }
+  }
+}
+
+.onSubmitRecBtn {
+  margin: 20px;
+}
+
 .hide{
   display:none;
 }

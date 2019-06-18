@@ -1,106 +1,202 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useReducer } from 'react';
 import gymWorkout from './Data/upperBodyGymData';
 import './app.scss';
 
-function GymRoutine() {
-  const [workoutRoutine, setWorkoutRoutine] = useState(gymWorkout);
-  const [currentNum, setCurrentNumb] = useState(0);
+  const initTodayWorkoutDataArray = [];
+  const initFrashOrgData = {
+    workoutType: "",
+    acturalRounds: [0,0,0],
+    weights: [0,0,0],
+    notes: ""
+  };
+
+  for(var i = 0; i < gymWorkout.length; i++){
+    initTodayWorkoutDataArray.push({
+      ...initFrashOrgData, workoutType: gymWorkout[i].workoutType
+    })
+  }
+
+  const statePayload = {
+    currentNum: 0,
+    gymWorkout,
+    currentWorkout: gymWorkout[0],
+    todayWorkoutData: initTodayWorkoutDataArray
+  }
+
+  const actReducer = (page, action) => {
+    switch(action.type){
+      case 'nextPage':
+        return {
+          ...page,
+          currentNum: page.currentNum + 1,
+          currentWorkout: page.gymWorkout[page.currentNum + 1]
+        }; 
+      case 'prevPage':
+        return {
+          ...page,
+          currentNum: page.currentNum - 1,
+          currentWorkout: page.gymWorkout[page.currentNum - 1]
+        }; 
+      case 'dataChange':
+        return {
+          ...page,
+          currentNum: page.currentNum + 1,
+          currentWorkout: page.gymWorkout[page.currentNum + 1],
+          todayWorkoutData: action.payload
+        }
+      default: return{ 
+        ...page,
+        currentNum: page.currentNum,
+        currentWorkout: page.gymWorkout[0]
+      };
+    }
+  }
+
+  
+  function GymRoutine() {
+    const [ page, pageDispatch ] = useReducer(actReducer, statePayload)
 
   const frashOrgData = {
     workoutType: "",
-    acturalSets: 0,
     acturalRounds: [0,0,0],
-    weights: 0
+    weights: [0,0,0],
+    notes: ""
   };
 
   const [recData, setRecData] = useState(frashOrgData)
 
-  //----
-  const actReducer = (currentNum, action) => {
-    switch(action.type){
-      case 'nextPage':
-        return {setCurrentNumb(currentNum + 1)};
-        break;
-      case 'prevPage':
-        return { setCurrentNumb(currentNum - 1)};
-        break;
-      default { currentNum }
-    }
-  }
-
-  const [ page, pageDispatch ] = useReducer(actReducer, currentNum)
-  //----
-
-  useEffect(()=>{
-    triggerNewSet(currentNum)
-  }, [currentNum]);
-
-
-  const triggerNewSet=(aNum)=>{
-      const workout = gymWorkout[currentNum];
-
-      setWorkoutRoutine({
-        workoutType: workout.workoutType,
-        workoutImage: workout.workoutImage,
-        sets: workout.sets,
-        reps: workout.reps
-      })
-  }
-
   const updateChanges =(e)=>{
     const cn = e.target.name;
     const value = e.target.value;
-    const num = e.target.getAttribute('data-num');
+    const wrkName = e.target.getAttribute('data-workouttype');
 
     setRecData({
       ...recData,
-      workoutType: workoutRoutine.workoutType,
+      workoutType: wrkName,
       [cn]: value
     })
   }
 
-  console.log(recData)
+  const updateWorkoutRec =(e)=>{
+    const cn = e.target.name;
+    const value = parseInt(e.target.value);
+    const num = e.target.getAttribute('data-num');
+    const wrkName = e.target.getAttribute('data-workouttype');
 
+    (value < 1)? recData[cn][num]=0 : recData[cn][num]= value;
+    recData[cn][num]= value
+    const newArr = recData[cn];
+
+    setRecData({
+      ...recData,
+      workoutType: wrkName,
+      [cn]: newArr
+    })
+  }
+
+  const updateRec = page.todayWorkoutData;
+  updateRec.splice(page.currentNum, 1, recData)
+
+  const onSubmitRec = (e) => {
+    e.preventDefault()
+    pageDispatch({type: 'dataChange', payload: updateRec})
+    setRecData(frashOrgData);
+  }
+
+    const inputSetups = [
+      {
+        currentRound: 1,
+        arrNum: 0
+      },{
+        currentRound: 2,
+        arrNum: 1
+      },{
+        currentRound: 3,
+        arrNum: 2
+      }
+    ]
+  
 
 
   return (
     <div className="gymRoutine">
-
-
       <div className="outerBlock">
         <div className="innerBlock">
-          <img className="imgDisplay" alt={workoutRoutine.workoutType} src={workoutRoutine.workoutImage} />
-          <b className="typeDisplay">{workoutRoutine.workoutType}</b>
+          <img className="imgDisplay" alt={page.currentWorkout.workoutType} src={page.currentWorkout.workoutImage} />
+          <b className="typeDisplay">{page.currentWorkout.workoutType}</b>
           <div className="buttonContainer">
-            <p className="setsDisplay"><b>{workoutRoutine.sets}</b> Sets, </p>
-            <p className="repsDisplay"> <b>{workoutRoutine.reps}</b> Round</p>
+            <p className="setsDisplay"><b>{page.currentWorkout.sets}</b> Sets, </p>
+            <p className="repsDisplay"> <b>{page.currentWorkout.reps}</b> Round</p>
           </div>
-          <div>
-            <p>Actural Sets</p>
-            <input
-              className="numInBox"
-              type="number"
-              name="workoutType"
-              onChange={updateChanges.bind(this)} />
-          </div>
-          <div>
-            <p>Actural rounds</p>
-            <label>
-              1:
+          <h3>Do 3 Sets</h3>
+
+          <div className="lineContainer">
+            <div>
+              <b>Rounds</b>
+            </div>
+            <div>
+              <b>Weight</b>
+            </div>
+          </div>   
+          {           
+            inputSetups.map((inputSetup, i)=>{
+              return(
+                <div className="lineContainer" key={i}>
+                  <div>
+                    <label>
+                      {inputSetup.currentRound}:
+                      <input
+                        className="numInBox"
+                        value = {recData.acturalRounds[inputSetup.arrNum]===0? '': recData.acturalRounds[inputSetup.arrNum]}
+                        min = {0}
+                        placeholder={recData.acturalRounds[inputSetup.arrNum]}
+                        type="number"
+                        name="acturalRounds"
+                        data-num={inputSetup.arrNum}
+                        data-workouttype={recData.workoutType}
+                        onChange={updateWorkoutRec.bind(this)} />
+                    </label>
+                  </div>
+                  <div>
+                    <label>
+                      <input
+                        className="numInBox"
+                        value = {recData.weights[inputSetup.arrNum]===0? '': recData.weights[inputSetup.arrNum]}
+                        min = {0}
+                        placeholder={recData.weights[inputSetup.arrNum]}
+                        type="number"
+                        name="weights"
+                        data-num={inputSetup.arrNum}
+                        data-workouttype={recData.workoutType}
+                        onChange={updateWorkoutRec.bind(this)} />
+                        LB
+                    </label>
+                  </div>
+                </div>  
+              )
+            })
+          }
+
+          <div className="notesContainer">
+            <div className="notesInnerContainer">
               <input
                 className="numInBox"
-                type="number"
-                name="acturalRounds"
-                data-num={0}
+                placeholder="NOTES"
+                value = {!recData.notes?"": recData.notes}
+                type="text"
+                name="notes"
+                data-workouttype={page.currentWorkout.workoutType}
                 onChange={updateChanges.bind(this)} />
-            </label>
+            </div>
           </div>
+
+          <button disabled={page.currentNum === gymWorkout.length-1? true : false } className="onSubmitRecBtn" onClick={onSubmitRec}>Submit</button>
         </div>
         <div>
         <span className="buttonContainer">
-          <button disabled={currentNum === 0? true : false } onClick={()=> pageDispatch({type: prevPage})}>Prev</button>
-          <p>{currentNum}/{gymWorkout.length-1}</p>
-          <button disabled={currentNum === gymWorkout.length-1? true : false } onClick={()=> pageDispatch({type: nextPage})}>Next</button>
+          <button disabled={page.currentNum === 0? true : false } onClick={()=> pageDispatch({type: 'prevPage'})}>Prev</button>
+          <p>{page.currentNum}/{gymWorkout.length-1}</p>
+          <button disabled={page.currentNum === gymWorkout.length-1? true : false } onClick={()=> pageDispatch({type: 'nextPage'})}>Next</button>
         </span>
       </div>
       </div>
@@ -112,52 +208,3 @@ export default GymRoutine;
 
 
 
-  // const [workoutRoutine, setWorkoutRoutine] = useState(gymWorkout);
-  // const [currentNum, setCurrentNumb] = useState(0);
-
-  // useEffect(()=>{
-  //   triggerNewSet(currentNum)
-  // }, [currentNum]);
-
-
-  // const triggerNewSet=(aNum)=>{
-  //     const workout = gymWorkout[currentNum];
-  //     const newSets = Math.floor(Math.random()*(workout.maxSets-(workout.minSets+1))+workout.minSets);
-  //     const newReps = Math.floor(Math.random()*(workout.maxReps-(workout.minReps+1))+workout.minReps);
-
-  //     setWorkoutRoutine({
-  //       workoutType: workout.workoutType,
-  //       workoutImage: workout.workoutImage,
-  //       sets: newSets,
-  //       reps: newReps
-  //     })
-  // }
-
-  // return (
-  //   <div className="gymRoutine">
-
-
-  //     <div className="outerBlock">
-  //       <div className="innerBlock">
-  //         <img className="imgDisplay" alt={workoutRoutine.workoutType} src={workoutRoutine.workoutImage} />
-  //         <b className="typeDisplay">{workoutRoutine.workoutType}</b>
-  //         <p className="setsDisplay">Do: <b>{workoutRoutine.sets}</b> rounds</p>
-  //         <p className="repsDisplay">Do: <b>{workoutRoutine.reps}</b> times/round</p>
-  //       </div>
-  //       <div>
-  //       <span className="buttonContainer">
-  //         <button disabled={currentNum === 0? true : false } onClick={()=> setCurrentNumb(currentNum-1)}>Prev</button>
-  //         <p>{currentNum}/{gymWorkout.length-1}</p>
-  //         <button disabled={currentNum === gymWorkout.length-1? true : false } onClick={()=> setCurrentNumb(currentNum+1)}>Next</button>
-  //       </span>
-  //     </div>
-  //     </div>
-  //   </div>
-  // );
-
-//   <input
-//   type="text"
-//   value={message}
-//   placeholder="Enter a message"
-//   onChange={e => setMessage(e.target.value)}
-// />
